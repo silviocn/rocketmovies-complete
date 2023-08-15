@@ -2,7 +2,7 @@ const knex = require("../database/knex");
 
 class NotesController {
   async create (request, response){
-    const { title, description, tags, links } = request.body;
+    const { title, description, tags } = request.body;
     const user_id = request.user.id;
     
     const [note_id] = await knex("notes").insert({ // here, it will get the note ID to link with links and tags
@@ -11,13 +11,13 @@ class NotesController {
       user_id
     });
     
-    const linksInsert = links.map(link => { // create the link/url with the note id already created
+    /*const linksInsert = links.map(link => { // create the link/url with the note id already created
       return {
         note_id,
         url: link, // changing from link to URL
       }
     });
-    await knex("links").insert(linksInsert); // insert the info in linksInsert into table, in field link
+    await knex("links").insert(linksInsert); // insert the info in linksInsert into table, in field link */
     
     const tagsInsert = tags.map(name => {
       return {
@@ -37,12 +37,12 @@ class NotesController {
 
     const note = await knex("notes").where({ id }).first(); // show only the first note with id typed
     const tags = await knex("tags").where({ note_id: id }).orderBy("name");
-    const links = await knex("links").where({ note_id: id }).orderBy("created_at");
+    // const links = await knex("links").where({ note_id: id }).orderBy("created_at");
 
     return response.json({
       ...note, // returns (shows) all the info of this note
-      tags,
-      links
+      tags
+      //links
     });
   }
 
@@ -88,7 +88,7 @@ class NotesController {
 
     const userTags = await knex("tags").where({ user_id });
     const notesWithTags = notes.map( note => {
-      const noteTags = userTags.filter(tag => tag.note_id === note.id);
+    const noteTags = userTags.filter(tag => tag.note_id === note.id);
 
       return {
         ...note,
